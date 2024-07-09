@@ -15,7 +15,9 @@ class UsersService(Service):
     async def get(self, user_id: str) -> types.User:
         """Retrieve a user by their id"""
         async with self._client.get(f"{self.endpoint}/{user_id}") as r:
-            return types.User.parse_obj(await r.json())
+            user_data = await r.json()
+            user_data["metadata"] = {}  # Pydantic 2 requires metadata
+            return types.User.model_validate(user_data, strict=False)
 
     async def delete(self, user_id: str) -> types.DeleteUserResponse:
         """Delete a user by their id"""
